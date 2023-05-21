@@ -3,7 +3,7 @@ from typing import Literal, Optional
 from datetime import datetime
 
 class Admin(BaseModel):
-    type: Literal[""]
+    type: Literal["admin", "doctor", "patient"]
     name: str
     user_id: str
     password: str
@@ -11,6 +11,7 @@ class Admin(BaseModel):
     class Config:
         schema_extra = {
             "example": {
+                "type": "admin",
                 "name": "admin 1",
                 "user_id": "admin001",
                 "password": "Password@123"
@@ -18,6 +19,7 @@ class Admin(BaseModel):
         }
 
 class Doctor(BaseModel):
+    type: Literal["admin", "doctor", "patient"]
     name: str
     user_id: str
     password: str
@@ -26,6 +28,7 @@ class Doctor(BaseModel):
     class Config:
         schema_extra = {
             "example": {
+                "type": "doctor",
                 "name": "doctor 1",
                 "user_id": "doctor001",
                 "password": "Password@123",
@@ -34,6 +37,7 @@ class Doctor(BaseModel):
         }
 
 class Patient(BaseModel):
+    type: Literal["admin", "doctor", "patient"]
     name: str
     user_id: str
     password: str
@@ -45,6 +49,7 @@ class Patient(BaseModel):
     class Config:
         schema_extra = {
             "example": {
+                "type": "patient",
                 "name": "patien 1",
                 "user_id": "patient001",
                 "password": "Password@123",
