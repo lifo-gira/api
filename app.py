@@ -40,17 +40,17 @@ def getData():
 @app.post("/create-adminuser")
 async def createAdminUser(data: Admin):
     res = await db.createAdminUser(data=data)
-    return{"user creation status": res} 
+    return{"userCreated": res} 
 
 @app.post("/create-doctor")
 async def createDoctor(data: Doctor):
     res = await db.createDoctor(data=data)
-    return{"user creation status": res}
+    return{"userCreated": res}
 
 @app.post("/create-patient")
 async def createPatient(data: Patient):
     res = await db.createPatient(data=data)
-    return{"user creation status": res}
+    return{"userCreated": res}
 
 @app.post("/login")
 async def initiateLogin(user_id: str, password: str):
