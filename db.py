@@ -4,6 +4,7 @@ from models import *
 client = motor_asyncio.AsyncIOMotorClient("mongodb+srv://lifogira:passwordPassword@main.zcij1ne.mongodb.net/?retryWrites=true&w=majority")
 db = client.Main
 users = db.users
+metrics = db.metrics
 
 async def getAllUser(type):
     try:
@@ -51,3 +52,33 @@ async def loginUser(user_id, password):
         user["loginStatus"] = False
     finally:
         return user
+    
+async def postData( user_id: str, data: Data):
+    try:
+        await metrics.insert_one(dict(data))
+        res = await users.find_one({"user_id": user_id, "type": "patient"})
+        res = dict(res)
+        res["data"].append(data.data_id)
+        await users.update_one({"user_id": user_id, "type": "patient"}, {"$set": res})
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+async def putData(data: Data):
+    try:
+        res = await metrics.find_one({"data_id": data.data_id},{'_id': 0})
+        res["series"] = res["series"] + data.series
+        await metrics.update_one({"data_id": data.data_id}, {"$set": res})
+        return True
+    except Exception as e:
+        print(e)
+        return False
+    
+async def getData(data_id: str):
+    metricsColl = []
+    cursor =  metrics.find({"data_id": "adsfjh"}, {"_id": 0})
+    for document in await cursor.to_list(length=100):
+        metricsColl.append(document)
+    print(metricsColl)
+    return metricsColl

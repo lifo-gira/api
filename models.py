@@ -59,3 +59,18 @@ class Patient(BaseModel):
                 
             }
         }
+
+
+class Data(BaseModel):
+    data_id: str
+    device_id: str
+    series: list
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "data_id": "adsfjh", 
+                "device_id": "device1",
+                "series": ["1", "2", "3"]
+            }
+        }

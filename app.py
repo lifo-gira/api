@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
-from models import Admin, Doctor, Patient
+from models import Admin, Doctor, Patient, Data
 import db
 
 
@@ -61,4 +61,19 @@ async def initiateLogin(user_id: str, password: str):
 @app.get("/get-all-user/{type}")
 async def getUsers(type: Literal["admin", "doctor", "patient", "all"]):
     res = await db.getAllUser(type)
+    return res
+
+@app.post("/post-data")
+async def addData(user_id: str,data: Data):
+    res = await db.postData(user_id=user_id, data=data)
+    return{"dataCreated": res}
+
+@app.put("/put-data")
+async def addData( data: Data):
+    res = await db.putData(data=data)
+    return{"dataCreated": res}
+
+@app.get("/metrics")
+async def getData(data_id: str):
+    res = await db.getData(data_id)
     return res
