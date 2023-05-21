@@ -57,3 +57,8 @@ async def initiateLogin(user_id: str, password: str):
     res = await db.loginUser(user_id, password) 
     if res["loginStatus"] == True:
         return res["data"]
+
+@app.get("/get-all-user/{type}")
+async def getUsers(type: Literal["admin", "doctor", "patient", "all"]):
+    res = await db.getAllUser(type)
+    return res

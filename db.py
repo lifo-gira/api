@@ -5,6 +5,19 @@ client = motor_asyncio.AsyncIOMotorClient("mongodb+srv://lifogira:passwordPasswo
 db = client.Main
 users = db.users
 
+async def getAllUser(type):
+    try:
+        allUsers = []
+        if type == "all":
+            cursor = users.find({}, {'_id': 0})
+        else:
+            cursor = users.find({"type": type}, {'_id': 0})
+        for document in await cursor.to_list(length=100):
+            allUsers.append(document)
+    except Exception as e:
+        print(e)
+    return allUsers
+
 async def createAdminUser(data: Admin):
     try:
         await users.insert_one(dict(data))
