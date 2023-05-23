@@ -19,6 +19,13 @@ async def getAllUser(type):
         print(e)
     return allUsers
 
+async def getUser(type, id):
+    try: 
+        res = await users.find_one({"user_id": id, "type": type},{'_id': 0})
+        return res
+    except Exception as e:
+        return None
+
 async def createAdminUser(data: Admin):
     try:
         await users.insert_one(dict(data))

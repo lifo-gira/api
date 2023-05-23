@@ -63,6 +63,11 @@ async def getUsers(type: Literal["admin", "doctor", "patient", "all"]):
     res = await db.getAllUser(type)
     return res
 
+@app.get("/get-user/{type}/{id}")
+async def getUsers(type: Literal["admin", "doctor", "patient"], id: str):
+    res = await db.getUser(type, id)
+    return res
+
 @app.post("/post-data")
 async def addData(user_id: str,data: Data):
     res = await db.postData(user_id=user_id, data=data)
