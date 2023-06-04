@@ -84,7 +84,7 @@ async def putData(data: Data):
     
 async def getData(data_id: str):
     metricsColl = []
-    cursor =  metrics.find({"data_id": "adsfjh"}, {"_id": 0})
+    cursor =  metrics.find({"data_id": data_id}, {"_id": 0})
     for document in await cursor.to_list(length=100):
         metricsColl.append(document)
     print(metricsColl)
