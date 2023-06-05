@@ -78,7 +78,7 @@ async def addData( data: Data):
     res = await db.putData(data=data)
     return{"dataCreated": res}
 
-@app.get("/metrics")
-async def getData(data_id: str):
+@app.post("/metrics")
+async def getData(data_id: list):
     res = await db.getData(data_id)
     return res
