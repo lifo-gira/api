@@ -3,7 +3,7 @@ from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
 from models import Admin, Doctor, Patient, Data
 import db
-from connection_manager import ConnectionManager
+from models import ConnectionManager
 
 
 app = FastAPI()
