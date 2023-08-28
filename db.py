@@ -89,3 +89,13 @@ async def getData(data_id: list):
     async for document in cursor:
         metricsColl.append(document)
     return metricsColl
+
+
+async def get_user_from_db(type: str, user_id: str) -> User:
+    # Fetch user data from the database using the provided type and user_id
+    # Return a User model object or None if user not found
+    # Example pseudocode:
+    user_data = await users.find_one({"type": type, "user_id": user_id})
+    if user_data:
+        return User(**user_data)
+    return None

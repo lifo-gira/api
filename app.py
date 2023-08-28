@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from models import Admin, Doctor, Patient, Data
 import db
 from models import ConnectionManager
+from db import get_user_from_db
 
 
 app = FastAPI()
@@ -90,10 +91,15 @@ async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: st
     await manager.connect(websocket)
     try:
         # Fetch user data based on type and id here
-        res = await db.getUser(type, id)
+        user = await get_user_from_db(type, id)  # Replace with your actual data retrieval function
 
-        response_message = {"status": "success", "data": res}
-        await manager.send_message(websocket, response_message)
+        if user:
+            user_data = user.dict()  # Convert user data to a dictionary
+            response_message = {"status": "success", "data": user_data}
+            await manager.send_message(websocket, response_message)
+        else:
+            error_message = {"status": "error", "message": "User not found"}
+            await manager.send_message(websocket, error_message)
     except Exception as e:
         error_message = {"status": "error", "message": str(e)}
         await manager.send_message(websocket, error_message)

@@ -90,3 +90,8 @@ class ConnectionManager:
 
     async def send_message(self, websocket: WebSocket, message: dict):
         await websocket.send_json(message)
+
+class User(BaseModel):
+    type: Literal["admin", "doctor", "patient"]
+    name: str
+    user_id: str
