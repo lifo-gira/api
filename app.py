@@ -1,11 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
 from models import Admin, Doctor, Patient, Data
 import db
+from connection_manager import ConnectionManager
 
 
 app = FastAPI()
+manager = ConnectionManager()
 
 storedData = []
 
@@ -82,3 +84,18 @@ async def addData( data: Data):
 async def getData(data_id: list):
     res = await db.getData(data_id)
     return res
+
+@app.websocket("/ws-get-user/{type}/{id}")
+async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: str, websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        # Fetch user data based on type and id here
+        res = await db.getUser(type, id)
+
+        response_message = {"status": "success", "data": res}
+        await manager.send_message(websocket, response_message)
+    except Exception as e:
+        error_message = {"status": "error", "message": str(e)}
+        await manager.send_message(websocket, error_message)
+    finally:
+        manager.disconnect(websocket)
