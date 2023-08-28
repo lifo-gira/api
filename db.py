@@ -13,7 +13,7 @@ async def getAllUser(type):
             cursor = users.find({}, {'_id': 0})
         else:
             cursor = users.find({"type": type}, {'_id': 0})
-        for document in await cursor.to_list(length=100):
+        for document in await cursor.to_list(length=1000):
             allUsers.append(document)
     except Exception as e:
         print(e)
@@ -85,6 +85,6 @@ async def putData(data: Data):
 async def getData(data_id: list):
     metricsColl = []
     cursor =  metrics.find( { "data_id": { "$in": data_id } }, { "_id": 0 } )
-    for document in await cursor.to_list(length=100):
+    for document in await cursor.to_list(length=1000):
         metricsColl.append(document)
     return metricsColl
