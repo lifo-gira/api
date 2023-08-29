@@ -97,5 +97,5 @@ async def get_user_from_db(type: str, user_id: str) -> User:
     # Example pseudocode:
     user_data = await users.find_one({"type": type, "user_id": user_id})
     if user_data:
-        return User(**user_data)
+        return Patient(**user_data)
     return None
