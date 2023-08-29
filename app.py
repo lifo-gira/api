@@ -86,6 +86,19 @@ async def getData(data_id: list):
     res = await db.getData(data_id)
     return res
 
+@app.websocket("/ws/metrics")
+async def metrics_socket(websocket: WebSocket):
+    await websocket.accept()
+
+    while True:
+        data = await websocket.receive_json()  # Wait for incoming JSON data
+        data_id = data.get("data_id", [])     # Extract data_id from the received data
+
+        res = await db.getData(data_id)
+
+        await websocket.send_json(res)        # Send the result back to the client
+
+
 @app.websocket("/ws-get-user/{type}/{id}")
 async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: str, websocket: WebSocket):
     await manager.connect(websocket)
