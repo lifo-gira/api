@@ -91,7 +91,7 @@ async def getData(data_id: list):
     return metricsColl
 
 
-async def get_user_from_db(type: str, user_id: str) -> User:
+async def get_user_from_db(type: str, user_id: str) -> Patient:
     # Fetch user data from the database using the provided type and user_id
     # Return a User model object or None if user not found
     # Example pseudocode:
