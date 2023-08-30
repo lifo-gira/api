@@ -92,7 +92,7 @@ async def metrics_socket(websocket: WebSocket):
 
     while True:
         data = await websocket.receive_json()  # Wait for incoming JSON data
-        data_id = data.get("data_id", list)     # Extract data_id from the received data
+        data_id = data.get("data_id", [])     # Extract data_id from the received data
 
         res = await db.getData(data_id)
 
