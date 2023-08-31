@@ -5,7 +5,8 @@ from models import Admin, Doctor, Patient, Data
 import db
 from models import ConnectionManager
 from db import get_user_from_db
-
+import asyncio
+import websockets
 
 app = FastAPI()
 manager = ConnectionManager()
@@ -71,9 +72,12 @@ async def getUsers(type: Literal["admin", "doctor", "patient"], id: str):
     res = await db.getUser(type, id)
     return res
 
+websocket_connections = []
+
 @app.post("/post-data")
 async def addData(user_id: str,data: Data):
     res = await db.postData(user_id=user_id, data=data)
+    await asyncio.gather(*[ws.send(data) for ws in websocket_connections])
     return{"dataCreated": res}
 
 @app.put("/put-data")
@@ -98,23 +102,33 @@ async def metrics_socket(websocket: WebSocket):
 
         await websocket.send_json(res)        # Send the result back to the client
 
+# @app.websocket("/ws-get-user/{type}/{id}")
+# async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: str, websocket: WebSocket):
+#     await manager.connect(websocket)
+#     try:
+#         # Fetch user data based on type and id here
+#         user = await get_user_from_db(type, id)  # Replace with your actual data retrieval function
+
+#         if user:
+#             user_data = user.model_dump()  # Convert user data to a dictionary
+#             response_message = {"status": "success", "data": user_data}
+#             await manager.send_message(websocket, response_message)
+#         else:
+#             error_message = {"status": "error", "message": "User not found"}
+#             await manager.send_message(websocket, error_message)
+#     except Exception as e:
+#         error_message = {"status": "error", "message": str(e)}
+#         await manager.send_message(websocket, error_message)
+#     finally:
+#         manager.disconnect(websocket)
 
 @app.websocket("/ws-get-user/{type}/{id}")
-async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: str, websocket: WebSocket):
-    await manager.connect(websocket)
+async def websocket_endpoint(websocket: websockets.WebSocket):
+    await websocket.accept()
+    websocket_connections.append(websocket)
     try:
-        # Fetch user data based on type and id here
-        user = await get_user_from_db(type, id)  # Replace with your actual data retrieval function
-
-        if user:
-            user_data = user.dict()  # Convert user data to a dictionary
-            response_message = {"status": "success", "data": user_data}
-            await manager.send_message(websocket, response_message)
-        else:
-            error_message = {"status": "error", "message": "User not found"}
-            await manager.send_message(websocket, error_message)
-    except Exception as e:
-        error_message = {"status": "error", "message": str(e)}
-        await manager.send_message(websocket, error_message)
+        while True:
+            await websocket.receive_text()
     finally:
-        manager.disconnect(websocket)
+        websocket_connections.remove(websocket)
+
