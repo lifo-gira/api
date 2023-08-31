@@ -72,7 +72,7 @@ class Data(BaseModel):
             "example": {
                 "data_id": "adsfjh", 
                 "device_id": "device1",
-                "series": ["1", "2", "3"]
+                "series": []
             }
         }
 
