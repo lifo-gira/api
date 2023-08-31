@@ -6,7 +6,7 @@ import db
 from models import ConnectionManager
 from db import get_user_from_db
 import asyncio
-import websockets
+
 
 app = FastAPI()
 manager = ConnectionManager()
@@ -123,7 +123,7 @@ async def metrics_socket(websocket: WebSocket):
 #         manager.disconnect(websocket)
 
 @app.websocket("/ws-get-user/{type}/{id}")
-async def websocket_endpoint(websocket: websockets.WebSocket):
+async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     websocket_connections.append(websocket)
     try:
