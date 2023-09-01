@@ -104,7 +104,7 @@ async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: st
     await manager.connect(websocket)
     try:
         # Fetch user data based on type and id here
-        user = await db.getUser(type, id)  # Replace with your actual data retrieval function
+        user = await get_user_from_db(type, id)  # Replace with your actual data retrieval function
 
         if user:
             user_data = user.dict()  # Convert user data to a dictionary
