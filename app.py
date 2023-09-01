@@ -25,6 +25,13 @@ app.add_middleware(
 def root():
     return {"Message": "use '/docs' endpoint to find all the api related docs "}
 
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"You sent: {data}")
+
 
 @app.post("/post-data/{data}")
 def postData(data):
@@ -92,11 +99,23 @@ async def metrics_socket(websocket: WebSocket):
 
     while True:
         data = await websocket.receive_json()  # Wait for incoming JSON data
-        data_id = data.get("data", [])     # Extract data_id from the received data
+        data_id = data.get("data", None)  # Extract data_id from the received data
 
-        res = await db.getData(data_id)
+        if data_id is not None:
+            res = await db.getData(data_id)  # Fetch data from the database based on data_id
+            await websocket.send_json(res)
 
-        await websocket.send_json(res)        # Send the result back to the client
+# @app.websocket("/ws/metrics")
+# async def metrics_socket(websocket: WebSocket):
+#     await websocket.accept()
+
+#     while True:
+#         data = await websocket.receive_json()  # Wait for incoming JSON data
+#         data_id = data.get("data", [])     # Extract data_id from the received data
+
+#         res = await db.getData(data_id)
+
+#         await websocket.send_json(res)        # Send the result back to the client
 
 
 @app.websocket("/ws-get-user/{type}/{id}")
