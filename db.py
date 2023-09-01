@@ -1,4 +1,5 @@
 from motor import motor_asyncio
+
 from models import *
 
 client = motor_asyncio.AsyncIOMotorClient("mongodb+srv://lifogira:passwordPassword@main.zcij1ne.mongodb.net/?retryWrites=true&w=majority")
