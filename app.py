@@ -3,14 +3,16 @@ from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
 from models import Admin, Doctor, Patient, Data
 import db
-from models import ConnectionManager
-from db import get_user_from_db
+from models import ConnectionManager, WebSocketManager
+from db import get_user_from_db,metrics
+import json
 
 
 app = FastAPI()
 manager = ConnectionManager()
 
 storedData = []
+websocket_list=[]
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,6 +30,8 @@ def root():
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    if websocket not in websocket_list:
+        websocket_list.append(websocket)
     while True:
         data = await websocket.receive_text()
         await websocket.send_text(f"You sent: {data}")
@@ -81,7 +85,10 @@ async def getUsers(type: Literal["admin", "doctor", "patient"], id: str):
 @app.post("/post-data")
 async def addData(user_id: str,data: Data):
     res = await db.postData(user_id=user_id, data=data)
-    return{"dataCreated": res}
+    for web in websocket_list:
+        data_json = json.dumps(data.dict())
+        await web.send_text(data_json)
+        return{"dataCreated": res}
 
 @app.put("/put-data")
 async def addData( data: Data):
@@ -93,47 +100,6 @@ async def getData(data_id: list):
     res = await db.getData(data_id)
     return res
 
-@app.websocket("/ws/metrics")
-async def metrics_socket(websocket: WebSocket):
-    await websocket.accept()
-
-    while True:
-        data = await websocket.receive_json()  # Wait for incoming JSON data
-        data_id = data.get("data", None)  # Extract data_id from the received data
-
-        if data_id is not None:
-            res = await db.getData(data_id)  # Fetch data from the database based on data_id
-            await websocket.send_json(res)
-
-# @app.websocket("/ws/metrics")
-# async def metrics_socket(websocket: WebSocket):
-#     await websocket.accept()
-
-#     while True:
-#         data = await websocket.receive_json()  # Wait for incoming JSON data
-#         data_id = data.get("data", [])     # Extract data_id from the received data
-
-#         res = await db.getData(data_id)
-
-#         await websocket.send_json(res)        # Send the result back to the client
 
 
-@app.websocket("/ws-get-user/{type}/{id}")
-async def websocket_endpoint(type: Literal["admin", "doctor", "patient"], id: str, websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        # Fetch user data based on type and id here
-        user = await get_user_from_db(type, id)  # Replace with your actual data retrieval function
 
-        if user:
-            user_data = user.dict()  # Convert user data to a dictionary
-            response_message = {"status": "success", "data": user_data}
-            await manager.send_message(websocket, response_message)
-        else:
-            error_message = {"status": "error", "message": "User not found"}
-            await manager.send_message(websocket, error_message)
-    except Exception as e:
-        error_message = {"status": "error", "message": str(e)}
-        await manager.send_message(websocket, error_message)
-    finally:
-        manager.disconnect(websocket)

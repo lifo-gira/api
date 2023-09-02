@@ -76,6 +76,32 @@ class Data(BaseModel):
             }
         }
 
+class WebSocketManager:
+    def __init__(self):
+        self.connections = {}
+    
+    def subscribe(self, websocket, user_type, user_id):
+        # Add the WebSocket connection to the relevant subscription list
+        key = (user_type, user_id)
+        if key not in self.connections:
+            self.connections[key] = []
+        self.connections[key].append(websocket)
+
+    def unsubscribe(self, websocket, user_type, user_id):
+        # Remove the WebSocket connection from the subscription list
+        key = (user_type, user_id)
+        if key in self.connections:
+            self.connections[key].remove(websocket)
+            if not self.connections[key]:
+                del self.connections[key]
+
+    async def notify_subscribers(self, user_type, user_id, message):
+        # Send a message to all WebSocket clients subscribed to the user_type and user_id
+        key = (user_type, user_id)
+        if key in self.connections:
+            for websocket in self.connections[key]:
+                await websocket.send_json(message)
+
 
 class ConnectionManager:
     def __init__(self):
@@ -90,3 +116,4 @@ class ConnectionManager:
 
     async def send_message(self, websocket: WebSocket, message: dict):
         await websocket.send_json(message)
+
