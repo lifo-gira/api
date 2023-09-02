@@ -27,14 +27,27 @@ app.add_middleware(
 def root():
     return {"Message": "use '/docs' endpoint to find all the api related docs "}
 
+# @app.websocket("/ws")
+# async def websocket_endpoint(websocket: WebSocket):
+#     await websocket.accept()
+#     if websocket not in websocket_list:
+#         websocket_list.append(websocket)
+#     while True:
+#         data = await websocket.receive_text()
+#         await websocket.send_text(f"You sent: {data}")
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    if websocket not in websocket_list:
-        websocket_list.append(websocket)
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"You sent: {data}")
+    websocket_list.append(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"You sent: {data}")
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+    finally:
+        websocket_list.remove(websocket)
 
 
 @app.post("/post-data/{data}")
