@@ -38,7 +38,6 @@ def root():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    print("hi")
     await websocket.accept()
     websocket_list.append(websocket)
     try:
@@ -57,7 +56,6 @@ def postData(data):
     try:
         storedData.append(data)
         return {"inserted": "true"}
-
     except:
         return {"inserted": "false"}
 
@@ -101,7 +99,6 @@ async def getUsers(type: Literal["admin", "doctor", "patient"], id: str):
 async def addData(user_id: str,data: Data):
     res = await db.postData(user_id=user_id, data=data)
     for web in websocket_list:
-        print("HII")
         data_json = json.dumps(data.dict())
         await web.send_text(data_json)
         return{"dataCreated": res}
